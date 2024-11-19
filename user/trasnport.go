@@ -49,16 +49,16 @@ func (c *clientHTTP) Get(id string) (*domain.User, error) {
 		return nil, reps.Err
 	}
 
+	if err := reps.FillUp(&dataResposne); err != nil {
+		return nil, fmt.Errorf("%s", err)
+	}
+
 	if reps.StatusCode == 404 {
-		return nil, ErrNotFound{fmt.Sprintf("%s", reps)}
+		return nil, ErrNotFound{fmt.Sprintf("%s", dataResposne.Message)}
 	}
 
 	if reps.StatusCode > 299 {
-		return nil, fmt.Errorf("Error: %s", reps)
-	}
-
-	if err := reps.FillUp(&dataResposne); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("Error: %s", dataResposne.Message)
 	}
 
 	return dataResposne.Data.(*domain.User), nil
